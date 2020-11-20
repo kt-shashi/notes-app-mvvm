@@ -1,5 +1,6 @@
 package com.shashi.notesappmvvm
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
@@ -15,6 +16,6 @@ interface NoteDao {
     suspend fun deleteAll()
 
     @Query("Select * from notes_table order by id")
-    fun getAllNotes(): List<Note>
+    fun getAllNotes(): LiveData<List<Note>>
 
 }
