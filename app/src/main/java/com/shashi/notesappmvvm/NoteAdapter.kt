@@ -26,7 +26,7 @@ class NoteAdapter(val context: Context, val listner: INoteAdapterListner) :
         holder.textViewNote.text = note.text
 
         holder.imageViewDelete.setOnClickListener {
-            notes[holder.adapterPosition]
+            listner.onItemClick(notes[position])
         }
     }
 
