@@ -6,17 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 
-class NoteAdapter(val context: Context, val listner: INoteAdapterListner) :
+class NoteAdapter(
+    val context: Context,
+    private val listnerDelete: INoteAdapterDeleteListner,
+    private val listnerClick: INoteAdapterClickListner
+) :
     RecyclerView.Adapter<NoteViewHolder>() {
 
-    val notes: ArrayList<Note> = ArrayList()
+    private val notes: ArrayList<Note> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
         val holder = NoteViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.item_note, parent, false)
+            LayoutInflater.from(context).inflate(R.layout.item_note, parent, false)
         )
         return holder
     }
@@ -25,8 +28,11 @@ class NoteAdapter(val context: Context, val listner: INoteAdapterListner) :
         val note = notes[position]
         holder.textViewNote.text = note.text
 
+        holder.textViewNote.setOnClickListener {
+            listnerClick.onNoteClick(note)
+        }
         holder.imageViewDelete.setOnClickListener {
-            listner.onItemClick(notes[position])
+            listnerDelete.onDeleteClick(notes[position])
         }
     }
 
@@ -46,6 +52,10 @@ class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val imageViewDelete: ImageView = itemView.findViewById(R.id.image_view_delete)
 }
 
-interface INoteAdapterListner {
-    fun onItemClick(note: Note)
+interface INoteAdapterDeleteListner {
+    fun onDeleteClick(note: Note)
+}
+
+interface INoteAdapterClickListner {
+    fun onNoteClick(note: Note)
 }

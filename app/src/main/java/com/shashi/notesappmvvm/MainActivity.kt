@@ -1,17 +1,20 @@
 package com.shashi.notesappmvvm
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class MainActivity : AppCompatActivity(), INoteAdapterListner {
+
+class MainActivity : AppCompatActivity(), INoteAdapterDeleteListner, INoteAdapterClickListner {
 
     lateinit var viewModel: NoteViewModel
 
@@ -49,7 +52,7 @@ class MainActivity : AppCompatActivity(), INoteAdapterListner {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         noteList = ArrayList()
-        noteAdapter = NoteAdapter(this, this)
+        noteAdapter = NoteAdapter(this, this, this)
         recyclerView.adapter = noteAdapter
 
         buttonSave.setOnClickListener {
@@ -64,10 +67,11 @@ class MainActivity : AppCompatActivity(), INoteAdapterListner {
             return
         }
 
+        editTextNote.setText("")
         viewModel.insertNote(Note(noteInput))
     }
 
-    override fun onItemClick(note: Note) {
+    override fun onDeleteClick(note: Note) {
         viewModel.deleteNote(note)
     }
 
@@ -91,4 +95,38 @@ class MainActivity : AppCompatActivity(), INoteAdapterListner {
     private fun deleteAllData() {
         viewModel.deleteAllNotes()
     }
+
+    override fun onNoteClick(note: Note) {
+        val layoutView = LayoutInflater.from(this).inflate(R.layout.update_dialog, null)
+
+        val alertDialog: AlertDialog.Builder = AlertDialog.Builder(this).setView(layoutView)
+        alertDialog.setCancelable(true)
+        val updateDialog: AlertDialog = alertDialog.create()
+        updateDialog.show()
+
+        val editTextUpdateNote: EditText = layoutView.findViewById(R.id.edit_text_update)
+        val buttonUpdate: Button = layoutView.findViewById(R.id.button_update)
+        val buttonCancel: Button = layoutView.findViewById(R.id.button_update_cancel)
+
+        editTextUpdateNote.setText(note.text)
+
+        buttonUpdate.setOnClickListener {
+
+            val updatedNoteData = editTextUpdateNote.text.toString().trim()
+
+            if (updatedNoteData.isEmpty()) {
+                editTextUpdateNote.error = "Cannot be empty"
+            } else {
+                note.id?.let { it1 ->
+                    viewModel.updateNote(updatedNoteData, it1)
+                }
+                updateDialog.dismiss()
+            }
+        }
+
+        buttonCancel.setOnClickListener {
+            updateDialog.dismiss()
+        }
+    }
+
 }
